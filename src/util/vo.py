@@ -15,7 +15,7 @@ class experiment_vo:
         self.model_cfg = ''      # 모델cfg
         self.store_nbr = 0       # 상점             : 1
         self.family2 = 0         # 품목             : 1
-        self.test_y = []         # 예측치 list
+        self.test_y = []         # 실제값 list
         self.predict_y = []      # 예측치 list
         self.score = 0.0         # 스코어
         self.mae = 0.0           # mae

@@ -45,7 +45,7 @@ def scenario_score_rate() :
     df_qry = pdb.sql_df(qry, df)
     return df_qry
 
-# scenario_score_rate()
+scenario_score_rate()
 ###########################################################
 # test
 ###########################################################
