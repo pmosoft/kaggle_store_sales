@@ -38,7 +38,7 @@ plot_store('x001d001y001m001', 2) 시나리오별 상점별 챠트 출력
 ![image](https://user-images.githubusercontent.com/20777148/159757168-ca0c6dbe-1b1b-4527-a43b-448e2f5416ec.png)
 
 ##### 상점별 품목별 최고 스코어 및 예측값 산출 쿼리
-select max(a.scenario_id) as scenario_id, a.store_nbr, a.family2, a.score, a.predict_y  
+select max(a.scenario_id) as scenario_id, a.store_nbr, a.family2, a.score, max(a.predict_y) predict_y  
 from   results a,  
 	  ( select store_nbr, family2, max(score) score  
 		from results  
