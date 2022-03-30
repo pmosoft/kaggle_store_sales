@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/kaggle_store_sales.iml" filepath="$PROJECT_DIR$/.idea/kaggle_store_sales.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../rltrader/.idea/rltrader.iml" filepath="$PROJECT_DIR$/../rltrader/.idea/rltrader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Kaggle/store_sales_study/submission_caret/.idea/submission_caret.iml" filepath="$PROJECT_DIR$/../Kaggle/store_sales_study/submission_caret/.idea/submission_caret.iml" />
     </modules>
   </component>
 </project>
