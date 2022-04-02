@@ -27,7 +27,7 @@ x001d001y001m003 : scenario_model_customeregressor.py
 
 #### 챠트  
 
-plot_store('x001d001y001m001', 2) 시나리오별 상점별 챠트 출력
+plot_predict_scenario_store('x001d001y001m001', 2) 시나리오별 상점별 챠트 출력
 
 ![image](https://user-images.githubusercontent.com/20777148/159756750-c776fdbd-ddf4-4481-a946-580181128de1.png)
 
