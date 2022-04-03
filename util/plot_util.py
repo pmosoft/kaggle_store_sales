@@ -42,7 +42,7 @@ def pyplot_predict_store_family(df):
     inx = 0
     for index, df2 in df.iterrows():
         t1 = "(" + str(df2['scenario_id']) + ")" + "(" + str(df2['store_nbr']) + ")" + "(" + str(df2['family2']) + ")" + "(" + str(df2['score']) + ")"
-        x1 = df2['date']
+        x1 = list(range(len(df2['test_y'])))
         y1 = df2['test_y']
         y2 = df2['predict_y']
         axes[inx // 5, inx % 5].grid()

@@ -111,7 +111,10 @@ def execute(trans,scenario_id,feature_col,feature_sdt8,feature_edt8,predict_sdt8
 if __name__ == '__main__':
     print(">>>>> main")
     _trans = load_data.train_master2()
-    execute(_trans,'x001d001y001m002','date8, month2, day2, onpromotion, transactions','20130101','20170730','20170801','20170815')
-    execute(_trans,'x001d002y001m002','date8, month2, day2, onpromotion, transactions','20170101','20170730','20170801','20170815')
+    #execute(_trans,'x001d001y001m002','date8, month2, day2, onpromotion, transactions','20130101','20170730','20170801','20170815')
+    #execute(_trans,'x001d002y001m002','date8, month2, day2, onpromotion, transactions','20170101','20170730','20170801','20170815')
+    execute(_trans,'x002d001y001m002','date8, month2, day2, day_of_week, onpromotion, transactions','20130101','20170730','20170801','20170815')
+    execute(_trans,'x002d002y001m002','date8, month2, day2, day_of_week, onpromotion, transactions','20170101','20170730','20170801','20170815')
+
     df_qry = predict_analysis.scenario_score_rate()
 

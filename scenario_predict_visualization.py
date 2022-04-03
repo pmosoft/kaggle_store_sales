@@ -44,14 +44,14 @@ class Scenario_predict_visualization:
 ###########################################################
 # execute
 ###########################################################
-#visual = Scenario_predict_visualization()
+visual = Scenario_predict_visualization()
 
 # %%
 #visual.plot_train_store(1)
 #visual.plot_train_store_family(1, 9)
 #visual.plot_predict_scenario_store_family('x001d001y001m004', 1, 7)
 #visual.plot_predict_scenario_store('x001d001y001m003', 2)
-#visual.plot_predict_store_family(1,4)
+visual.plot_predict_store_family(1,4)
 # %%
 ###########################################################
 # test
