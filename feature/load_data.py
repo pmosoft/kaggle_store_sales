@@ -19,7 +19,7 @@ def train_master2():
                             'family2': 'uint32',
                             'onpromotion': 'uint32',
                             'transactions': 'uint32',
-                            'sales': 'float32',
+                            'sales': 'uint32',
                         },
                         parse_dates=['date'], infer_datetime_format=True
                         )
@@ -39,7 +39,7 @@ def train_master3():
                             'family2': 'uint32',
                             'onpromotion': 'uint32',
                             'transactions': 'uint32',
-                            'sales': 'float32',
+                            'sales': 'uint32',
                         },
                         parse_dates=['date'], infer_datetime_format=True
                         )
