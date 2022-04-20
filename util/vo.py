@@ -1,8 +1,9 @@
 class experiment_vo:
     def __init__(self):
         self.work_dtm16 = ''     # 작업일시         : '2022-03-13 14:00'
-        self.scenario_id = ''    # 시나리오ID       : 'x001d001y001m001'
+        self.scenario_id = ''    # 시나리오ID       : 'x001c001d001y001m001c001'
         self.scenario_desc = ''  # 시나리오설명     : '기본 feature 기본 모델 회귀 only'
+        self.feature_src  = ''   # feature 원천     : train_master_all, traion_master_store_dates, traion_master_exist_sales
         self.feature_col = ''    # feature컬럼      : 'date8, month2, day2, onpromotion, transactions'
         self.feature_sdt8 = ''   # feature시작일자  : '20170101'
         self.feature_edt8 = ''   # feature종료일자  : '20170730'
@@ -23,6 +24,7 @@ class experiment_vo:
         self.mse = 0.0           # mse
         self.fit_tm_sec = 0      # fit수행시간
         self.file_nm = ''        # 파일명           : 'x001d001y001m001_2022-03-13_1400'
+        self.meno = ''           # 메모
 
 def vo_print(vo):
     print(vo.work_dtm16)

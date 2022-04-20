@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../Fastcampus/.idea/Fastcampus.iml" filepath="$PROJECT_DIR$/../Fastcampus/.idea/Fastcampus.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/kaggle_store_sales.iml" filepath="$PROJECT_DIR$/.idea/kaggle_store_sales.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../neowizard-master/.idea/neowizard-master.iml" filepath="$PROJECT_DIR$/../neowizard-master/.idea/neowizard-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ridge_map/.idea/ridge_map.iml" filepath="$PROJECT_DIR$/../ridge_map/.idea/ridge_map.iml" />
       <module fileurl="file://$PROJECT_DIR$/../rltrader/.idea/rltrader.iml" filepath="$PROJECT_DIR$/../rltrader/.idea/rltrader.iml" />
     </modules>
   </component>

@@ -33,8 +33,8 @@ select scenario_id
      --, max(predict_edt8) as predict_edt8
      , round(sum(fit_tm_sec)/60)  as fit_tm_min
 from df
-order by substr(scenario_id,13,4), substr(scenario_id,1,4), substr(scenario_id,5,4)
 group by scenario_id
+order by substr(scenario_id,13,4), substr(scenario_id,1,4), substr(scenario_id,5,4)
 """
 
 ###########################################################

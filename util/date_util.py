@@ -1,7 +1,6 @@
 import time
 from datetime import datetime
 
-
 def get_now(): return datetime.now()
 
 '''
@@ -9,6 +8,9 @@ get_time_str("%Y%m%d")
 get_time_str("%Y%m%d%H%M%S")
 '''
 def get_time_str(FORMAT_DATETIME="%Y%m%d%H%M%S"):
+    return datetime.fromtimestamp(int(time.time())).strftime(FORMAT_DATETIME)
+
+def get_time_str8(FORMAT_DATETIME="%Y%m%d"):
     return datetime.fromtimestamp(int(time.time())).strftime(FORMAT_DATETIME)
 
 def get_time_str16(FORMAT_DATETIME="%Y-%m-%d %H:%M"):
@@ -19,6 +21,11 @@ def get_time_str15(FORMAT_DATETIME="%Y-%m-%d_%H%M"):
 
 def get_time():
     return datetime.fromtimestamp(int(time.time()))
+
+'''
+'''
+def get_time_from_str8(str8):
+    return datetime.strptime(str8, '%Y%m%d')
 
 '''
 now = datetime.now()
@@ -42,6 +49,7 @@ def get_diff_time_day(start_tm, end_tm):
     return (end_tm - start_tm).days
 
 
+#print(type(get_time_str8("20220422")))
 # print(get_time_str("%Y%m%d"))
 # print(get_time())
 # now = datetime.now()
@@ -51,3 +59,4 @@ def get_diff_time_day(start_tm, end_tm):
 # print("get_diff_time_sec=",get_diff_time_sec(past, now))
 # print("get_diff_time_microseconds=",get_diff_time_microseconds(past, now))
 # print("get_diff_time_microseconds=",get_diff_time_sec(past, now) + get_diff_time_microseconds(past, now)/1000000)
+#print("get_diff_time_day=", get_diff_time_day(get_time_from_str8('20220422'), get_time_from_str8('20220424')))

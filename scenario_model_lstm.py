@@ -1,25 +1,20 @@
-import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, LSTM
-from keras.models import Sequential
-from keras.preprocessing.sequence import TimeseriesGenerator
-from keras.layers import LSTM, Dense, Dropout, RepeatVector, TimeDistributed
-from sklearn.preprocessing import MinMaxScaler, OrdinalEncoder
+from keras.layers import LSTM, Dense, Dropout
+from keras.callbacks import EarlyStopping
+
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_squared_log_error
-from sklearn.model_selection import train_test_split
 
-import sklearn
-from sklearn import preprocessing
+import tensorflow as tf
 
-from sklearn.metrics import mean_squared_log_error
-
-import pandas as pd
+import numpy as np
 import json
 
 from feature import load_data
 from feature import make_train_test_dataset
 from util.vo import experiment_vo
 import util.date_util as dt
+import util.model_util as model_util
 import util.plot_util as plot_util
 import scenario_predict_analysis as predict_analysis
 
@@ -38,154 +33,204 @@ main
 ###############################################################################
 vo_list = []
 path = "d:/lge/pycharm-projects/kaggle_store_sales/output/"
-pliot = True
-# pliot = False
+#pliot = True
+pliot = False
 ###############################################################################
 #                                      구현부
 ###############################################################################
-_trans = load_data.train_master2()
+# _trans = load_data.train_master('train_master_exist_sales')
+
 ###########################################################
 # pliot
 ###########################################################
-# if pliot :
 # %%
-# _trans = load_data.train_master2()
+if pliot:
+    # _trans = load_data.train_master('train_master_exist_sales')
 
-vo = experiment_vo()
-vo.scenario_id = 'x001d001y001m004'
-vo.scenario_desc = '기본 feature LSTM 모델'
-vo.feature_col = 'date8, month2, day2, day_of_week, onpromotion, transactions'
-vo.feature_sdt8 = '20170101'
-vo.feature_edt8 = '20170730'
-vo.predict_col = 'sales'
-vo.predict_sdt8 = '20170801'
-vo.predict_edt8 = '20170815'
-vo.model_name = 'LSTM'
-vo.store_nbr = 1
-vo.family2 = 4
-train_X, train_y, test_X, test_y = make_train_test_dataset.query(_trans, vo)
+    # tf.debugging.set_log_device_placement(True)
+    # with tf.device("CPU"):
+    with tf.device("GPU"):
+        start_dtm = dt.get_now()
+
+        vo = experiment_vo()
+        vo.scenario_id = 'x002f003d001y001m006c001'
+        vo.scenario_desc = '기본 feature LSTM 모델 기존 cfg'
+        vo.feature_col = 'month2, day2, day_of_week, onpromotion, transactions'
+        vo.feature_sdt8 = '20130101'
+        vo.feature_edt8 = '20170815'
+        vo.predict_col = 'sales'
+        vo.predict_sdt8 = '20170801'
+        vo.predict_edt8 = '20170815'
+        vo.model_name = 'LSTM'
+        vo.meno = 'date8 삭제, 장기간 더 좋은 결과, 돌리때마다 다른 결과, early_stop_patience, batch_size도 결과에 영향 존재'
+        vo.store_nbr = 1
+        vo.family2 = 4
+        model_cfg = {
+            'window_size': 20,
+            'hidden_layer_cnt': 128,
+            'hidden_layer_activation': 'tanh',
+            'output_layer_activation': 'linear',
+            'loss': 'mse',
+            'optimizer': 'adam',
+            'early_stop_patience': 15,
+            'epochs': 100,
+            'batch_size': 8
+        }
+        vo.model_cfg = model_cfg
+
+        train_X, train_y, test_X, test_y = make_train_test_dataset.query(_trans, vo)
+        scaler = MinMaxScaler()
+        train_X1 = scaler.fit_transform(train_X)
+        train_y1 = scaler.fit_transform(train_y)
+
+        window_size = model_cfg['window_size']
+        X, Y = model_util.make_sequence_dataset(train_X1, train_y1, window_size)
+
+        split = -1 * (dt.get_diff_time_day(dt.get_time_from_str8(vo.predict_sdt8), dt.get_time_from_str8(vo.predict_edt8)) + 1)
+        train_X2 = X[0:split]
+        train_y2 = Y[0:split]
+
+        test_X2 = X[split:]
+        test_y2 = Y[split:]
+
+        model = Sequential()
+        model.add(LSTM(model_cfg['hidden_layer_cnt'], activation=model_cfg['hidden_layer_activation'], input_shape=train_X2[0].shape))
+        model.add(Dense(1, activation=model_cfg['output_layer_activation']))
+        aa = model.summary()
+
+        model.compile(loss=model_cfg['loss'], optimizer=model_cfg['optimizer'], metrics=['mse'])
+        early_stopping = EarlyStopping(monitor='val_loss', patience=model_cfg['early_stop_patience'])
+        model.fit(train_X2, train_y2, validation_data=(test_X2, test_y2), epochs=model_cfg['epochs'], batch_size=model_cfg['batch_size'], callbacks=[early_stopping])
+
+        predict_y = model.predict(test_X2)
+        predict_y = scaler.inverse_transform(predict_y)
+
+        vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
+        vo.score = float("{:.2f}".format(1 - vo.mse))
+        vo.test_y = test_y['sales'].tolist()
+        vo.predict_y = predict_y.tolist()
+        vo.fit_tm_sec = dt.get_diff_time_microseconds(start_dtm, dt.get_now())
+        score = vo.score
+        fit_tm_sec = vo.fit_tm_sec
+
+        # Save - Load
+        # from pathlib import Path
+        # import os
+        # model_structure = model.to_json()
+        # path = f"d:/lge/pycharm-projects/kaggle_store_sales/output/model/{vo.scenario_id}/"
+        # os.makedirs(path)
+        # f = Path(f"{path}/model_structure.json")
+        # f.write_text(model_structure)
+        # model.save_weights(f"{path}/save_weights.h5")
+        # model.save(f"{path}/save.h5")
+        # del model
+        # from keras.models import load_model
+        # model = load_model(f"{path}/save.h5")
+        # predict_y = model.predict(test_X2)
+        # predict_y = scaler.inverse_transform(predict_y)
+
 
 # %%
-train_X1 = train_X.values.reshape((train_X.shape[0], 1, train_X.shape[1]))
-train_y1 = train_y.values
-# %%
-
-
-train_X1 = np.asarray(train_X).astype(np.int)
-train_y1 = np.asarray(train_y).astype(np.int)
-test_X1 = np.asarray(test_X).astype(np.int)
-
-# %%
-
-model = Sequential()
-model.add(LSTM(10, activation='relu', input_shape=(train_X1.shape[1], train_y.shape[1])))
-model.add(Dense(5))
-model.add(Dense(1))
-model.summary()
-model.compile(optimizer='adam', loss='mse')
-model.fit(train_X1, train_y1, epochs=100, batch_size=1)
-
-# %%
-
-model = Sequential()
-# First LSTM layer with Dropout regularisation; Set return_sequences to True to feed outputs to next layer
-model.add(LSTM(units=50, activation='relu', return_sequences=True, input_shape=(train_X1.shape[1], train_y.shape[1])))
-model.add(Dropout(0.2))
-
-# Second LSTM layer with Dropout regularisation; Set return_sequences to True to feed outputs to next layer
-model.add(LSTM(units=50, activation='relu', return_sequences=True))
-model.add(Dropout(0.2))
-
-# Final LSTM layer with Dropout regularisation; Set return_sequences to False since now we will be predicting with the output layer
-model.add(LSTM(units=50))
-model.add(Dropout(0.2))
-
-# The output layer with linear activation to predict Open stock price
-model.add(Dense(units=1, activation="linear"))
-
-model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
-
-# %%
-model.fit(train_X1, train_y1, epochs=100, batch_size=1)
-# %%
-
-generator = TimeseriesGenerator(train_X1, train_y1, length=30, batch_size=1)
-model.fit_generator(generator, steps_per_epoch=len(generator), epochs=20, verbose=2)
-
-# %%
-
-
-predict_y = model.predict(test_X1)
-
-
-# optimizer = keras.optimizers.Adam(learning_rate=0.001)
-#
-# model.compile(optimizer="adam", loss="mean_squared_error", metrics=["mse"])
-#
-# model.summary()
-
-# ridge = make_pipeline(RobustScaler(),Ridge(alpha=31.0))
-#
-# train_X, train_y, test_X, test_y = make_train_test_dataset.query(_trans, vo)
-# ridge = make_pipeline(RobustScaler(), Ridge(alpha=31.0))
-# model = ridge.fit(train_X, train_y)
-# predict_y = pd.DataFrame(model.predict(test_X), index=test_X.index, columns=test_y.columns).clip(0.0)
-
-# vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
-# vo.score = float("{:.2f}".format(1 - mean_squared_log_error(test_y, predict_y)))
-# plot_util.pyplot_01(vo.scenario_desc, 'date', 'sales', test_y['date8'], test_y['sales'], predict_y['sales'])
-
 ###########################################################
 # 모델 fit, predict
 ###########################################################
 
-def execute(trans, scenario_id, feature_col, feature_sdt8, feature_edt8, predict_sdt8, predict_edt8):
+def execute(scenario_id, scenario_desc, tab_nm, feature_col, feature_sdt8, feature_edt8, predict_sdt8, predict_edt8, model_name, model_cfg):
+    _trans = load_data.train_master(tab_nm)
+
     _vo_list = []
     work_dtm16 = dt.get_time_str16();
     work_dtm15 = dt.get_time_str15()
-    # for store_nbr in range(54):
-    #     for family2 in range(33):
-    for store_nbr in range(54):
-        for family2 in range(33):
+
+    store_family_df = make_train_test_dataset.store_family_df(_trans)
+    for i in store_family_df.index:
+        store_nbr = int(store_family_df['store_nbr'][i])
+        family2 = int(store_family_df['family2'][i])
+
+        start_dtm = dt.get_now()
+
+        # tf.debugging.set_log_device_placement(True)
+        # with tf.device("CPU"):
+        with tf.device("GPU"):
+
             start_dtm = dt.get_now()
 
             vo = experiment_vo()
             vo.work_dtm16 = work_dtm16
             vo.scenario_id = scenario_id
-            vo.scenario_desc = '기본 feature Ridge 모델'
+            vo.scenario_desc = scenario_desc
+            vo.feature_src = tab_nm
             vo.feature_col = feature_col
             vo.feature_sdt8 = feature_sdt8
             vo.feature_edt8 = feature_edt8
             vo.predict_col = 'sales'
             vo.predict_sdt8 = predict_sdt8
             vo.predict_edt8 = predict_edt8
-            vo.model_name = 'Ridge'
-            vo.store_nbr = store_nbr + 1
-            vo.family2 = family2 + 1
+            vo.model_name = model_name
+            vo.model_cfg = model_cfg
+            vo.store_nbr = store_nbr
+            vo.family2 = family2
+            vo.model_cfg = model_cfg
+            vo.meno = 'date8 삭제, 장기간 더 좋은 결과, 돌리때마다 다른 결과, early_stop_patience, batch_size도 결과에 영향 존재'
 
             train_X, train_y, test_X, test_y = make_train_test_dataset.query(_trans, vo)
-            # ridge = make_pipeline(RobustScaler(), Ridge(alpha=31.0))
-            # model = ridge.fit(train_X, train_y)
-            # predict_y = pd.DataFrame(model.predict(test_X), index=test_X.index, columns=test_y.columns).clip(0.0)
-            #
-            # vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
-            # vo.score = float("{:.2f}".format(1 - mean_squared_log_error(test_y, predict_y)))
-            # vo.test_y = test_y['sales'].tolist()
-            # vo.predict_y = predict_y['sales'].tolist()
+            scaler = MinMaxScaler()
+            train_X1 = scaler.fit_transform(train_X)
+            train_y1 = scaler.fit_transform(train_y)
+
+            window_size = model_cfg['window_size']
+            X, Y = model_util.make_sequence_dataset(train_X1, train_y1, window_size)
+
+            split = -1 * (dt.get_diff_time_day(dt.get_time_from_str8(vo.predict_sdt8), dt.get_time_from_str8(vo.predict_edt8)) + 1)
+            train_X2 = X[0:split]
+            train_y2 = Y[0:split]
+
+            test_X2 = X[split:]
+            test_y2 = Y[split:]
+
+            model = Sequential()
+            model.add(LSTM(model_cfg['hidden_layer_cnt'], activation=model_cfg['hidden_layer_activation'], input_shape=train_X2[0].shape))
+            model.add(Dense(1, activation=model_cfg['output_layer_activation']))
+            aa = model.summary()
+
+            model.compile(loss=model_cfg['loss'], optimizer=model_cfg['optimizer'], metrics=['mse'])
+            early_stopping = EarlyStopping(monitor='val_loss', patience=model_cfg['early_stop_patience'])
+            model.fit(train_X2, train_y2, validation_data=(test_X2, test_y2), epochs=model_cfg['epochs'], batch_size=model_cfg['batch_size'], callbacks=[early_stopping])
+
+            predict_y = model.predict(test_X2)
+            predict_y = scaler.inverse_transform(predict_y)
+
+            try:
+                vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
+                vo.score = float("{:.2f}".format(1 - vo.mse))
+            except:
+                pass
+
+            vo.test_y = test_y['sales'].tolist()
+            vo.predict_y = predict_y.tolist()
             vo.fit_tm_sec = dt.get_diff_time_microseconds(start_dtm, dt.get_now())
-            _vo_list.append(vo.__dict__)
-            print(f"scenario_id={vo.scenario_id} store_nbr={vo.store_nbr} family2={vo.family2} score={vo.score} fit_tm_sec={vo.fit_tm_sec} ")
-            # plot_util.pyplot_01(vo.scenario_desc, 'date', 'sales', test_y['date8'], test_y['sales'], predict_y['sales'])
+
+        _vo_list.append(vo.__dict__)
+        print(f"scenario_id={vo.scenario_id} store_nbr={vo.store_nbr} family2={vo.family2} score={vo.score} fit_tm_sec={vo.fit_tm_sec} ")
+        # plot_util.pyplot_01(vo.scenario_desc, 'date', 'sales', test_y['date8'], test_y['sales'], predict_y['sales'])
     json.dump(_vo_list, open(f"{path}/{_vo_list[0]['scenario_id']}.json", 'w'))
     vo_list = _vo_list
 
 
 if __name__ == '__main__':
-    print(">>>>> main")
-    # _trans = load_data.train_master2()
-    # execute(_trans,'x001d001y001m002','date8, month2, day2, onpromotion, transactions','20130101','20170730','20170801','20170815')
-    # execute(_trans,'x001d002y001m002','date8, month2, day2, onpromotion, transactions','20170101','20170730','20170801','20170815')
-    # execute(_trans,'x002d001y001m002','date8, month2, day2, day_of_week, onpromotion, transactions','20130101','20170730','20170801','20170815')
-    # execute(_trans,'x002d002y001m002','date8, month2, day2, day_of_week, onpromotion, transactions','20170101','20170730','20170801','20170815')
+    print(">>>> main")
 
-    # df_qry = predict_analysis.scenario_score_rate()
+    model_cfg = {
+        'window_size': 20,
+        'hidden_layer_cnt': 128,
+        'hidden_layer_activation': 'tanh',
+        'output_layer_activation': 'linear',
+        'loss': 'mse',
+        'optimizer': 'adam',
+        'early_stop_patience': 15,
+        'epochs': 100,
+        'batch_size': 8
+    }
+    execute('x002f003d003y001m006c001', 'sales 존재-기본 feature3-전기간-lstm 모델', 'train_master_exist_sales', 'month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170815', '20170801', '20170815', 'LSTM', model_cfg)
+
+    df_qry = predict_analysis.scenario_score_rate()

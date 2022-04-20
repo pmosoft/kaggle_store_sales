@@ -24,8 +24,10 @@ from sklearn import preprocessing
 import matplotlib.pyplot as plt
 
 from pandasql import sqldf
-
 dfsql = lambda q: sqldf(q, globals())
+
+tf.debugging.set_log_device_placement(True)
+
 
 # This Python 3 environment comes with many helpful analytics libraries installed
 # It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
