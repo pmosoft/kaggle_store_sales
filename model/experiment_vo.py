@@ -24,8 +24,40 @@ class experiment_vo:
         self.mse = 0.0           # mse
         self.fit_tm_sec = 0      # fit수행시간
         self.file_nm = ''        # 파일명           : 'x001d001y001m001_2022-03-13_1400'
-        self.meno = ''           # 메모
+        self.memo = ''           # 메모
 
 def vo_print(vo):
     print(vo.work_dtm16)
+
+'''
+
+schema = StructType([
+    StructField("work_dtm16"    , StringType()),
+    StructField("scenario_id"   , StringType()),
+    StructField("scenario_desc" , StringType()),
+    StructField("feature_src"   , StringType()),
+    StructField("feature_col"   , StringType()),
+    StructField("feature_sdt8"  , StringType()),
+    StructField("feature_edt8"  , StringType()),
+    StructField("feature_desc"  , StringType()),
+    StructField("predict_col"   , StringType()),
+    StructField("predict_sdt8"  , StringType()),
+    StructField("predict_edt8"  , StringType()),
+    StructField("auto_ml_model" , StringType()),
+    StructField("model_name"    , StringType()),
+    StructField("model_cfg"     , StringType()),
+    StructField("store_nbr"     , StringType()),
+    StructField("family2"       , StringType()),
+    StructField("test_y"        , StringType()),
+    StructField("predict_y"     , StringType()),
+    StructField("score"         , StringType()),
+    StructField("mae"           , StringType()),
+    StructField("mape"          , StringType()),
+    StructField("mse"           , StringType()),
+    StructField("fit_tm_sec"    , StringType()),
+    StructField("file_nm"       , StringType()),
+    StructField("memo"          , StringType())
+    ])
+    
+'''
 

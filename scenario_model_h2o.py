@@ -2,16 +2,13 @@ import h2o
 from h2o.automl import H2OAutoML
 from sklearn.metrics import mean_squared_log_error
 
-import pandas as pd
 import json
 
 from feature import load_data
 from feature import make_train_test_dataset
-from util.vo import experiment_vo
+from model.experiment_vo import experiment_vo
 import util.date_util as dt
 import util.string_util as string_util
-import util.plot_util as plot_util
-import scenario_predict_analysis as predict_analysis
 
 ###############################################################################
 #                                    함수 정의

@@ -1,4 +1,3 @@
-from joblib import Parallel, delayed
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, BaggingRegressor, VotingRegressor
 from sklearn.linear_model import Ridge
@@ -12,9 +11,10 @@ import json
 
 from feature import load_data
 from feature import make_train_test_dataset
-from util.vo import experiment_vo
+from model.experiment_vo import experiment_vo
+import model.scenario_id_code as scd
+
 import util.date_util as dt
-import util.plot_util as plot_util
 import scenario_predict_analysis as predict_analysis
 
 ###############################################################################
@@ -89,7 +89,9 @@ if pliot :
 # 모델 fit, predict
 ###########################################################
 
-def execute(scenario_id, scenario_desc, tab_nm, feature_col, feature_sdt8, feature_edt8, predict_sdt8, predict_edt8, model_name, model_cfg):
+def execute(scenario_id, model_cfg):
+    scenario_desc, tab_nm, feature_col, feature_sdt8, feature_edt8, predict_col, predict_sdt8, predict_edt8, model_name = scd.get_code_name(scenario_id)
+
     _trans = load_data.train_master(tab_nm)
 
     _vo_list = []
@@ -134,7 +136,7 @@ def execute(scenario_id, scenario_desc, tab_nm, feature_col, feature_sdt8, featu
             model = VotingRegressor([('ridge', ridge), ('svr', svr)])
 
         model.fit(train_X, train_y.values.ravel())
-        predict_y = pd.DataFrame(model.predict(test_X), index=test_X.index, columns=test_y.columns).clip(0.0)
+        predict_y = pd.DataFrame(model.predict(test_X).astype(int), index=test_X.index, columns=test_y.columns).clip(0.0)
         vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
         vo.score = float("{:.2f}".format(1 - mean_squared_log_error(test_y, predict_y)))
         vo.test_y = test_y['sales'].tolist()
@@ -149,19 +151,43 @@ def execute(scenario_id, scenario_desc, tab_nm, feature_col, feature_sdt8, featu
 if __name__ == '__main__':
     print(">>>> main")
 
-    execute('x001f001d001y001m003c001', '전체건-기본 feature1-전기간-복합 모델', 'train_master_all', 'date8, month2, day2, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x001f001d002y001m003c001', '전체건-기본 feature1-전기간-복합 모델', 'train_master_all', 'date8, month2, day2, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x001f002d001y001m003c001', '전체건-기본 feature2-특정기간-복합 모델', 'train_master_all', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x001f002d002y001m003c001', '전체건-기본 feature2-특정기간-복합 모델', 'train_master_all', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    #################################
+    # Evaluate
+    #################################
+    execute('x001f005d001y001t001m003c001', '')
+    execute('x001f005d002y001t001m003c001', '')
 
-    execute('x002f001d001y001m003c001', 'sales 존재-기본 feature1-전기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x002f001d002y001m003c001', 'sales 존재-기본 feature1-전기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x002f002d001y001m003c001', 'sales 존재-기본 feature2-특정기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x002f002d002y001m003c001', 'sales 존재-기본 feature2-특정기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    execute('x002f005d001y001t001m003c001', '')
+    execute('x002f005d002y001t001m003c001', '')
 
-    execute('x003f001d001y001m003c001', '상점별 기간-기본 feature1-전기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x003f001d002y001m003c001', '상점별 기간-기본 feature1- 전기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x003f002d001y001m003c001', '상점별 기간-기본 feature2-특정기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
-    execute('x003f002d002y001m003c001', '상점별 기간-기본 feature2-특정기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    execute('x003f005d001y001t001m003c001', '')
+    execute('x003f005d002y001t001m003c001', '')
+
+    #################################
+    # Predict
+    #################################
+    execute('x001f005d003y001t002m003c001', '')
+    execute('x001f005d004y001t002m003c001', '')
+
+    execute('x002f005d003y001t002m003c001', '')
+    execute('x002f005d004y001t002m003c001', '')
+
+    execute('x003f005d003y001t002m003c001', '')
+    execute('x003f005d004y001t002m003c001', '')
+    #
+    # execute('x001f001d001y001m003c001', '전체건-기본 feature1-전기간-복합 모델', 'train_master_all', 'date8, month2, day2, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x001f001d002y001m003c001', '전체건-기본 feature1-전기간-복합 모델', 'train_master_all', 'date8, month2, day2, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x001f002d001y001m003c001', '전체건-기본 feature2-특정기간-복합 모델', 'train_master_all', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x001f002d002y001m003c001', '전체건-기본 feature2-특정기간-복합 모델', 'train_master_all', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    #
+    # execute('x002f001d001y001m003c001', 'sales 존재-기본 feature1-전기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x002f001d002y001m003c001', 'sales 존재-기본 feature1-전기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x002f002d001y001m003c001', 'sales 존재-기본 feature2-특정기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x002f002d002y001m003c001', 'sales 존재-기본 feature2-특정기간-복합 모델', 'train_master_exist_sales', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    #
+    # execute('x003f001d001y001m003c001', '상점별 기간-기본 feature1-전기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x003f001d002y001m003c001', '상점별 기간-기본 feature1- 전기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x003f002d001y001m003c001', '상점별 기간-기본 feature2-특정기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170730', '20170801', '20170815', 'LinearRegression', '')
+    # execute('x003f002d002y001m003c001', '상점별 기간-기본 feature2-특정기간-복합 모델', 'train_master_store_dates', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
 
     df_qry = predict_analysis.scenario_score_rate()

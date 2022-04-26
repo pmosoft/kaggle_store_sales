@@ -1,21 +1,19 @@
 from keras.models import Sequential
-from keras.layers import LSTM, Dense, Dropout
+from keras.layers import LSTM, Dense
 from keras.callbacks import EarlyStopping
 
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error, mean_squared_log_error
+from sklearn.metrics import mean_squared_log_error
 
 import tensorflow as tf
 
-import numpy as np
 import json
 
 from feature import load_data
 from feature import make_train_test_dataset
-from util.vo import experiment_vo
+from model.experiment_vo import experiment_vo
 import util.date_util as dt
 import util.model_util as model_util
-import util.plot_util as plot_util
 import scenario_predict_analysis as predict_analysis
 
 ###############################################################################
@@ -171,7 +169,7 @@ def execute(scenario_id, scenario_desc, tab_nm, feature_col, feature_sdt8, featu
             vo.store_nbr = store_nbr
             vo.family2 = family2
             vo.model_cfg = model_cfg
-            vo.meno = 'date8 삭제, 장기간 더 좋은 결과, 돌리때마다 다른 결과, early_stop_patience, batch_size도 결과에 영향 존재'
+            vo.memo = 'date8 삭제, 장기간 더 좋은 결과, 돌리때마다 다른 결과, early_stop_patience, batch_size도 결과에 영향 존재'
 
             train_X, train_y, test_X, test_y = make_train_test_dataset.query(_trans, vo)
             scaler = MinMaxScaler()
