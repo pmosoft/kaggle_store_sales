@@ -1,6 +1,11 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import plotly.express as px
 # import file_util as file_util
+import seaborn as sns # For Data Visualization
+import numpy as np
+
+from feature import load_data
 
 def pyplot_predict_scenario_store_family(t1,xlabel,ylabel,x1,y1,y2):
     plt.rcParams['font.family'] = 'Malgun Gothic'
@@ -71,35 +76,80 @@ def pyplot_train_store(df):
     fig.tight_layout()
     plt.show()
 
-def pyplot_train_store_family(df,title,x,y):
+def pyplot_train_store_family(df, title, x, y):
     plt.rcParams['font.family'] = 'Malgun Gothic'
     plt.title(title)
     plt.plot(df[x], df[y], color='b', alpha=0.6, marker='o', markersize=5, linestyle='-')
     plt.show()
 
-def plotly_df(df,title,x,y):
+def pyplot_train_store_family_multi(df):
+    plt.rcParams['font.family'] = 'Malgun Gothic'
+
+    mpl.rc('font', size=14)
+    mpl.rc('axes', titlesize=15)
+    fig, axes = plt.subplots(nrows=3, ncols=2)
+    # plt.plot(df['date'], df['sales'], color='b', alpha=0.6, marker='o', markersize=5, linestyle='-', ax=axes[0, 0])
+    axes[0, 0].plot(df['date'], df['sales'], color='r', alpha=0.6, marker='o', markersize=5, linestyle='--')
+    axes[0, 0].set(xlabel='date', ylabel='sales')
+    #sns.barplot(x='date', y='sales', data=df, ax=axes[0, 0])
+
+    sns.boxplot(x='year4', y='sales', data=df, ax=axes[0, 1])
+    sns.boxplot(x='season', y='sales', data=df, ax=axes[1, 0])
+    sns.boxplot(x='month2', y='sales', data=df, ax=axes[1, 1])
+    sns.boxplot(x='day2', y='sales', data=df, ax=axes[2, 0])
+    sns.boxplot(x='day_of_week', y='sales', data=df, ax=axes[2, 1])
+
+    # sns.barplot(x='year4', y='sales', data=df, ax=axes[0, 1])
+    # sns.barplot(x='season', y='sales', data=df, ax=axes[1, 0])
+    # sns.barplot(x='month2', y='sales', data=df, ax=axes[1, 1])
+    # sns.barplot(x='day2', y='sales', data=df, ax=axes[2, 0])
+    # sns.barplot(x='day_of_week', y='sales', data=df, ax=axes[2, 1])
+
+    fig.tight_layout()
+    fig.set_size_inches(10,9)
+    plt.show()
+
+def plotly_df(df, title, x, y):
     fig = px.line(df, x=x, y=y, title=title)
     fig.show()
-
 
 #%%
 ###########################################################
 # test
 ###########################################################
+#%%
+# df = load_data.train_master("train_master_all")
+# df = df[(df['store_nbr'] == 1) & (df['family2'] == 4)]
 
-# #%%
-# from feature import load_data
-# df = load_data.train_master2()
-#
-# #%%
-# df2 = df[(df['store_nbr'] == 1)]
+#%%
+
+#%%
+#df2 = df[(df['store_nbr'] == 1)]
+# df3 = df2[df2["sales"] > 0]
+
+#%%
+#fig = px.line(df2, x='day_of_week', y='sales', title='')
+#fig.show()
+#sns.distplot(df2["day_of_week"])
+#sns.distplot(df2["sales"])
+#sns.distplot(np.log(df3["sales"]))
+#sns.barplot(x='day_of_week', y='sales', data=df2)
+#sns.barplot(x='year4', y='sales', data=df2)
+# fig, axes = plt.subplots(nrows=3, ncols=2)
+# sns.barplot(x='season', y='sales', data=df2, ax=axes[0, 0])
+# plt.title("Histogram of Total Bill")
+# plt.show()
+
+#%%
+
+#plt.plot(df2['day_of_week'], df2['day_of_week'], color='b', alpha=0.6, marker='o', markersize=5, linestyle='-')
+#plt.show()
 #
 # #%%
 #
 # path = "d:/lge/pycharm-projects/kaggle_store_sales/output/"
 # df = file_util.read_jsons_to_pandas(path)
 # #%%
-# df2 = df[(df['store_nbr'] == 1) & (df['family2'] == 2)]
 # pyplot_predict_store_family(df2)
 #  #%%
 #

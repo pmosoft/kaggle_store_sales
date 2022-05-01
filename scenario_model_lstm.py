@@ -3,15 +3,18 @@ from keras.layers import LSTM, Dense
 from keras.callbacks import EarlyStopping
 
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_log_error
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, mean_squared_log_error
 
 import tensorflow as tf
 
 import json
+import numpy as np
 
 from feature import load_data
 from feature import make_train_test_dataset
 from model.experiment_vo import experiment_vo
+import model.scenario_id_code as scd
+
 import util.date_util as dt
 import util.model_util as model_util
 import scenario_predict_analysis as predict_analysis
@@ -31,38 +34,39 @@ main
 ###############################################################################
 vo_list = []
 path = "d:/lge/pycharm-projects/kaggle_store_sales/output/"
-#pliot = True
-pliot = False
+pliot = True
+#pliot = False
 ###############################################################################
 #                                      구현부
 ###############################################################################
-# _trans = load_data.train_master('train_master_exist_sales')
 
 ###########################################################
 # pliot
 ###########################################################
 # %%
 if pliot:
-    # _trans = load_data.train_master('train_master_exist_sales')
-
+    start_dtm = dt.get_now()
+    scenario_id = 'x001f006d001y001t001m006c001'
+    scenario_desc, tab_nm, feature_col, feature_sdt8, feature_edt8, predict_col, predict_sdt8, predict_edt8, model_name = scd.get_code_name(scenario_id)
+    _trans = load_data.train_master(tab_nm)
+    # %%
     # tf.debugging.set_log_device_placement(True)
     # with tf.device("CPU"):
     with tf.device("GPU"):
         start_dtm = dt.get_now()
 
         vo = experiment_vo()
-        vo.scenario_id = 'x002f003d001y001m006c001'
-        vo.scenario_desc = '기본 feature LSTM 모델 기존 cfg'
-        vo.feature_col = 'month2, day2, day_of_week, onpromotion, transactions'
-        vo.feature_sdt8 = '20130101'
-        vo.feature_edt8 = '20170815'
-        vo.predict_col = 'sales'
-        vo.predict_sdt8 = '20170801'
-        vo.predict_edt8 = '20170815'
-        vo.model_name = 'LSTM'
+        vo.scenario_id = scenario_id
+        vo.feature_col = feature_col
+        vo.feature_sdt8 = feature_sdt8
+        vo.feature_edt8 = feature_edt8
+        vo.predict_col = predict_col
+        vo.predict_sdt8 = predict_sdt8
+        vo.predict_edt8 = predict_edt8
+        vo.model_name = model_name
         vo.meno = 'date8 삭제, 장기간 더 좋은 결과, 돌리때마다 다른 결과, early_stop_patience, batch_size도 결과에 영향 존재'
         vo.store_nbr = 1
-        vo.family2 = 4
+        vo.family2 = 1
         model_cfg = {
             'window_size': 20,
             'hidden_layer_cnt': 128,
@@ -103,12 +107,19 @@ if pliot:
         predict_y = model.predict(test_X2)
         predict_y = scaler.inverse_transform(predict_y)
 
-        vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
-        vo.score = float("{:.2f}".format(1 - vo.mse))
+        vo.mae = float("{:.2f}".format(mean_absolute_error(test_y, predict_y)))
+        vo.mse = float("{:.2f}".format(mean_squared_error(test_y, predict_y)))
+        vo.rmse = float("{:.2f}".format(np.sqrt(mean_squared_error(test_y, predict_y))))
+        vo.msle = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
+        vo.rmsle = float("{:.2f}".format(np.sqrt(mean_squared_log_error(test_y, predict_y))))
+        vo.r2 = float("{:.2f}".format(r2_score(test_y, predict_y)))
+        vo.score = float("{:.2f}".format(1 - vo.msle))
+
         vo.test_y = test_y['sales'].tolist()
         vo.predict_y = predict_y.tolist()
         vo.fit_tm_sec = dt.get_diff_time_microseconds(start_dtm, dt.get_now())
         score = vo.score
+        rmsle = vo.score
         fit_tm_sec = vo.fit_tm_sec
 
         # Save - Load
@@ -218,17 +229,17 @@ def execute(scenario_id, scenario_desc, tab_nm, feature_col, feature_sdt8, featu
 if __name__ == '__main__':
     print(">>>> main")
 
-    model_cfg = {
-        'window_size': 20,
-        'hidden_layer_cnt': 128,
-        'hidden_layer_activation': 'tanh',
-        'output_layer_activation': 'linear',
-        'loss': 'mse',
-        'optimizer': 'adam',
-        'early_stop_patience': 15,
-        'epochs': 100,
-        'batch_size': 8
-    }
-    execute('x002f003d003y001m006c001', 'sales 존재-기본 feature3-전기간-lstm 모델', 'train_master_exist_sales', 'month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170815', '20170801', '20170815', 'LSTM', model_cfg)
-
-    df_qry = predict_analysis.scenario_score_rate()
+    # model_cfg = {
+    #     'window_size': 20,
+    #     'hidden_layer_cnt': 128,
+    #     'hidden_layer_activation': 'tanh',
+    #     'output_layer_activation': 'linear',
+    #     'loss': 'mse',
+    #     'optimizer': 'adam',
+    #     'early_stop_patience': 15,
+    #     'epochs': 100,
+    #     'batch_size': 8
+    # }
+    # execute('x002f003d003y001m006c001', 'sales 존재-기본 feature3-전기간-lstm 모델', 'train_master_exist_sales', 'month2, day2, day_of_week, onpromotion, transactions', '20130101', '20170815', '20170801', '20170815', 'LSTM', model_cfg)
+    #
+    # df_qry = predict_analysis.scenario_score_rate()

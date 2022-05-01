@@ -1,35 +1,4 @@
-# class scenario_id_code:
-#     def __init__(self):
-#         self.x001 = 'train_master_all'
-#         self.x002 = 'train_master_exist_sales'
-#         self.x003 = 'train_master_store_dates'
-#         self.f001 = 'date8, month2, day2, onpromotion, transactions'
-#         self.f002 = 'date8, month2, day2, day_of_week, onpromotion, transactions'
-#         self.f003 = 'month2, day2, day_of_week, onpromotion, transactions'
-#         self.f004 = 'month2, day2, day_of_week, onpromotion'
-#         self.d001 = '20130101,20170730'
-#         self.d002 = '20170101,20170730'
-#         self.d003 = '20170101,20170815'
-#         self.m001 = 'LinearRegression'
-#         self.m002 = 'Ridge'
-#         self.m003 = 'CustomRegressor'
-#         self.m004 = 'H2O'
-#         self.m005 = 'Pycaret'
-#         self.m006 = 'LSTM'
-#         self.c001 = ''
-#         self.etc = ''
-#
-#         self.x001f001d001y001m001c001 = ''
-#
-#     def get_code_desc(self, cd):
-#         cd = 'x001f004d001y001m001c001'
-#         print(self)
-#         pass
-#
-# def scenario_id_code_print(vo):
-#     print(vo.x001)
 
-# scenario_id_code = scenario_id_code()
 scenario_id_code = {
     # get_code_name('x001f004d001y001t001m001c001')
     'x001': 'train_master_all',
@@ -40,6 +9,11 @@ scenario_id_code = {
     'f003': 'month2, day2, day_of_week, onpromotion, transactions',
     'f004': 'month2, day2, day_of_week, onpromotion',
     'f005': 'date8, month2, day2, day_of_week, onpromotion',
+    'f006': 'year4, season, day_of_week, onpromotion',
+    'f007': 'year4, month2, day2, season, day_of_week, onpromotion',
+    'f008': 'date8, year4, month2, day2, season, day_of_week, onpromotion',
+    'f009': 'date8, year4, month2, day2, day_of_week, onpromotion',
+    'f010': 'date8, season, month2, day2, day_of_week, onpromotion',
     'd001': '20130101,20170730',
     'd002': '20170101,20170730',
     'd003': '20130101,20170815',
@@ -55,7 +29,6 @@ scenario_id_code = {
     'm006': 'LSTM',
     'etc': ''
 }
-
 def get_code_name(cd):
     s = scenario_id_code
     # print(cd[0:4])

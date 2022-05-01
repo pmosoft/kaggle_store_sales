@@ -7,13 +7,15 @@ def train_master(tab_nm):
     print(f'load_data.train_master({tab_nm})')
     path = "d:/lge/pycharm-projects/kaggle_store_sales/input/"
     trans = pd.read_csv(f'{path}/{tab_nm}.csv',
-                        usecols=['store_nbr', 'family', 'family2', 'date', 'date8', 'month2', 'day2', 'day_of_week','onpromotion', 'transactions', 'sales'],
+                        usecols=['store_nbr', 'family', 'family2', 'date', 'date8', 'year4', 'season', 'day_of_week', 'month2', 'day2', 'onpromotion', 'transactions', 'sales'],
                         dtype={
                             # date
                             'date8': 'category',
+                            'year4': 'uint32',
+                            'season': 'uint32',
+                            'day_of_week': 'uint32',
                             'month2': 'category',
                             'day2': 'category',
-                            'day_of_week': 'category',
                             'store_nbr': 'uint32',
                             'family': 'category',
                             'family2': 'uint32',

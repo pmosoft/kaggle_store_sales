@@ -17,6 +17,7 @@ class Scenario_predict_visualization:
         test_y = df2['test_y'].values[0]
         predict_y = df2['predict_y'].values[0]
         plot_util.pyplot_predict_scenario_store_family(title, 'date', 'sales', test_x, test_y, predict_y)
+        return df2
 
     def plot_predict_scenario_store(self, scenario_id, store_nbr):
         df = self.predict_df
@@ -27,11 +28,13 @@ class Scenario_predict_visualization:
         df = self.predict_df
         df2 = df[(df['store_nbr'] == store_nbr) & (df['family2'] == family2)]
         plot_util.pyplot_predict_store_family(df2)
+        return df2
 
     def plot_train_store(self, store_nbr):
         df = self.trans
         df2 = df[(df['store_nbr'] == store_nbr)]
         plot_util.pyplot_train_store(df2)
+        return df2
 
     def plot_train_store_family(self, store_nbr, family2):
         df = self.trans
@@ -39,7 +42,15 @@ class Scenario_predict_visualization:
         title = "(" + str(store_nbr) + ")" + "(" + str(family2) + ")"
         # plot_util.plotly_df(df2, title, 'date', 'sales')
         plot_util.pyplot_train_store_family(df2, title, 'date', 'sales')
+        return df2
 
+    def plot_train_store_family_multi(self, store_nbr, family2):
+        df = self.trans
+        df2 = df[(df['store_nbr'] == store_nbr) & (df['family2'] == family2)]
+        title = "(" + str(store_nbr) + ")" + "(" + str(family2) + ")"
+        # plot_util.plotly_df(df2, title, 'date', 'sales')
+        plot_util.pyplot_train_store_family_multi(df2)
+        return df2
 
 # %%
 ###########################################################
@@ -48,11 +59,15 @@ class Scenario_predict_visualization:
 visual = Scenario_predict_visualization()
 
 # %%
-# visual.plot_train_store(1)
-visual.plot_train_store_family(1, 1)
+#visual.plot_train_store(1)
+df = visual.plot_train_store_family_multi(1, 1)
 # visual.plot_predict_scenario_store_family('x001d001y001m004', 1, 7)
-# visual.plot_predict_scenario_store('x001d001y001m003', 2)
+# visual.plot_predict_scenario_store('x001f005d001y001t001m001c001', 1  )
 # visual.plot_predict_store_family(1,3)
+
+# %%
+
+
 # %%
 ###########################################################
 # test

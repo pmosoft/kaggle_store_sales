@@ -18,10 +18,13 @@ class experiment_vo:
         self.family2 = 0         # 품목             : 1
         self.test_y = []         # 실제값 list
         self.predict_y = []      # 예측치 list
-        self.score = 0.0         # 스코어
         self.mae = 0.0           # mae
-        self.mape = 0.0          # mape
         self.mse = 0.0           # mse
+        self.rmse = 0.0          # rmse
+        self.msle = 0.0          # msle
+        self.rmsle = 0.0         # rmsle
+        self.r2 = 0.0            # r2
+        self.score = 0.0         # 스코어
         self.fit_tm_sec = 0      # fit수행시간
         self.file_nm = ''        # 파일명           : 'x001d001y001m001_2022-03-13_1400'
         self.memo = ''           # 메모
@@ -50,10 +53,13 @@ schema = StructType([
     StructField("family2"       , StringType()),
     StructField("test_y"        , StringType()),
     StructField("predict_y"     , StringType()),
-    StructField("score"         , StringType()),
     StructField("mae"           , StringType()),
-    StructField("mape"          , StringType()),
-    StructField("mse"           , StringType()),
+    StructField("mse"          , StringType()),
+    StructField("rmse"           , StringType()),
+    StructField("msle"           , StringType()),
+    StructField("rmsle"           , StringType()),
+    StructField("r2"           , StringType()),
+    StructField("score"         , StringType()),
     StructField("fit_tm_sec"    , StringType()),
     StructField("file_nm"       , StringType()),
     StructField("memo"          , StringType())

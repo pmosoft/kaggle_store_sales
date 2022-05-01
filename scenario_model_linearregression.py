@@ -1,6 +1,7 @@
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_log_error
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, mean_squared_log_error
 
+import numpy as np
 import pandas as pd
 import json
 
@@ -40,10 +41,10 @@ pliot = False
 if pliot:
 
     start_dtm = dt.get_now()
-    scenario_id = 'x003f005d003y001t002m001c001'
+    scenario_id = 'x001f006d001y001t001m001c001'
     scenario_desc, tab_nm, feature_col, feature_sdt8, feature_edt8, predict_col, predict_sdt8, predict_edt8, model_name = scd.get_code_name(scenario_id)
     _trans = load_data.train_master(tab_nm)
-
+    # %%
     vo = experiment_vo()
     vo.scenario_id = scenario_id
     vo.feature_col = feature_col
@@ -54,13 +55,19 @@ if pliot:
     vo.predict_edt8 = predict_edt8
     vo.model_name = model_name
     vo.store_nbr = 1
-    vo.family2 = 1
+    vo.family2 = 4
     train_X, train_y, test_X, test_y = make_train_test_dataset.query(_trans, vo)
 
     model = LinearRegression().fit(train_X, train_y)
     predict_y = pd.DataFrame(model.predict(test_X).astype(int), index=test_X.index, columns=test_y.columns).clip(0.0)
-    vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
-    vo.score = float("{:.2f}".format(1 - mean_squared_log_error(test_y, predict_y)))
+
+    vo.mae = float("{:.2f}".format(mean_absolute_error(test_y, predict_y)))
+    vo.mse = float("{:.2f}".format(mean_squared_error(test_y, predict_y)))
+    vo.rmse = float("{:.2f}".format(np.sqrt(mean_squared_error(test_y, predict_y))))
+    vo.msle = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
+    vo.rmsle = float("{:.2f}".format(np.sqrt(mean_squared_log_error(test_y, predict_y))))
+    vo.r2 = float("{:.2f}".format(r2_score(test_y, predict_y)))
+    vo.score = float("{:.2f}".format(1 - vo.msle))
     vo.test_y = test_y['sales'].tolist()
     vo.predict_y = predict_y['sales'].tolist()
 
@@ -112,8 +119,14 @@ def execute(scenario_id, model_cfg):
 
         model = LinearRegression().fit(train_X, train_y)
         predict_y = pd.DataFrame(model.predict(test_X).astype(int), index=test_X.index, columns=test_y.columns).clip(0.0)
-        vo.mse = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
-        vo.score = float("{:.2f}".format(1 - mean_squared_log_error(test_y, predict_y)))
+        vo.mae = float("{:.2f}".format(mean_absolute_error(test_y, predict_y)))
+        vo.mse = float("{:.2f}".format(mean_squared_error(test_y, predict_y)))
+        vo.rmse = float("{:.2f}".format(np.sqrt(mean_squared_error(test_y, predict_y))))
+        vo.msle = float("{:.2f}".format(mean_squared_log_error(test_y, predict_y)))
+        vo.rmsle = float("{:.2f}".format(np.sqrt(mean_squared_log_error(test_y, predict_y))))
+        vo.r2 = float("{:.2f}".format(r2_score(test_y, predict_y)))
+        vo.score = float("{:.2f}".format(1 - vo.msle))
+
         vo.test_y = test_y['sales'].tolist()
         vo.predict_y = predict_y['sales'].tolist()
 
@@ -128,29 +141,31 @@ if __name__ == '__main__':
     print(">>>> main")
     # scd.get_code_name('x001f005d001y001t001m001c001')
 
-    #################################
-    # Evaluate
-    #################################
-    execute('x001f005d001y001t001m001c001', '')
-    execute('x001f005d002y001t001m001c001', '')
+    # #################################
+    # # Evaluate
+    # #################################
+    execute('x001f006d002y001t001m001c001', '')
 
-    execute('x002f005d001y001t001m001c001', '')
-    execute('x002f005d002y001t001m001c001', '')
-
-    execute('x003f005d001y001t001m001c001', '')
-    execute('x003f005d002y001t001m001c001', '')
-
-    #################################
-    # Predict
-    #################################
-    execute('x001f005d003y001t002m001c001', '')
-    execute('x001f005d004y001t002m001c001', '')
-
-    execute('x002f005d003y001t002m001c001', '')
-    execute('x002f005d004y001t002m001c001', '')
-
-    execute('x003f005d003y001t002m001c001', '')
-    execute('x003f005d004y001t002m001c001', '')
+    # execute('x001f005d001y001t001m001c001', '')
+    # execute('x001f005d002y001t001m001c001', '')
+    #
+    # execute('x002f005d001y001t001m001c001', '')
+    # execute('x002f005d002y001t001m001c001', '')
+    #
+    # execute('x003f005d001y001t001m001c001', '')
+    # execute('x003f005d002y001t001m001c001', '')
+    #
+    # #################################
+    # # Predict
+    # #################################
+    # execute('x001f005d003y001t002m001c001', '')
+    # execute('x001f005d004y001t002m001c001', '')
+    #
+    # execute('x002f005d003y001t002m001c001', '')
+    # execute('x002f005d004y001t002m001c001', '')
+    #
+    # execute('x003f005d003y001t002m001c001', '')
+    # execute('x003f005d004y001t002m001c001', '')
 
     # execute('x001f004d001y001m001c001', '전체건-기본 feature2-특정기간-회귀 모델', 'train_master_all', 'date8, month2, day2, day_of_week, onpromotion, transactions', '20170101', '20170730', '20170801', '20170815', 'LinearRegression', '')
 
