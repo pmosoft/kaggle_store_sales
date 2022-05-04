@@ -1,6 +1,6 @@
 
 scenario_id_code = {
-    # get_code_name('x001f004d001y001t001m001c001')
+    # get_code_name('x001f004d001y001t001m001c001p001')
     'x001': 'train_master_all',
     'x002': 'train_master_exist_sales',
     'x003': 'train_master_store_dates',
@@ -27,6 +27,11 @@ scenario_id_code = {
     'm004': 'H2O',
     'm005': 'Pycaret',
     'm006': 'LSTM',
+    'p001': 'shphi',  # 피승현 : 41-54
+    'p002': 'hshong', # 홍혜선 : 01-10
+    'p003': 'kikim',  # 김건일 : 21-30
+    'p004': 'jhlee',  # 이준호 : 11-20
+    'p005': 'jujung', # 정준하 : 31-40
     'etc': ''
 }
 def get_code_name(cd):

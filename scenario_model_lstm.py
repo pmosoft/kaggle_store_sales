@@ -74,7 +74,7 @@ if pliot:
             'output_layer_activation': 'linear',
             'loss': 'mse',
             'optimizer': 'adam',
-            'early_stop_patience': 15,
+            'early_stop_patience': 30,
             'epochs': 100,
             'batch_size': 8
         }
@@ -119,7 +119,7 @@ if pliot:
         vo.predict_y = predict_y.tolist()
         vo.fit_tm_sec = dt.get_diff_time_microseconds(start_dtm, dt.get_now())
         score = vo.score
-        rmsle = vo.score
+        rmsle = vo.rmsle
         fit_tm_sec = vo.fit_tm_sec
 
         # Save - Load

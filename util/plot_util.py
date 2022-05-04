@@ -88,6 +88,8 @@ def pyplot_train_store_family_multi(df):
     mpl.rc('font', size=14)
     mpl.rc('axes', titlesize=15)
     fig, axes = plt.subplots(nrows=3, ncols=2)
+
+    plt.title('233')
     # plt.plot(df['date'], df['sales'], color='b', alpha=0.6, marker='o', markersize=5, linestyle='-', ax=axes[0, 0])
     axes[0, 0].plot(df['date'], df['sales'], color='r', alpha=0.6, marker='o', markersize=5, linestyle='--')
     axes[0, 0].set(xlabel='date', ylabel='sales')

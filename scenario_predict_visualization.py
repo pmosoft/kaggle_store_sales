@@ -61,9 +61,9 @@ visual = Scenario_predict_visualization()
 # %%
 #visual.plot_train_store(1)
 df = visual.plot_train_store_family_multi(1, 1)
-# visual.plot_predict_scenario_store_family('x001d001y001m004', 1, 7)
-# visual.plot_predict_scenario_store('x001f005d001y001t001m001c001', 1  )
-# visual.plot_predict_store_family(1,3)
+# visual.plot_predict_scenario_store_family('x001d001y001m004', 1, 4)
+#visual.plot_predict_scenario_store('x001f005d001y001t001m003c001', 1)
+#visual.plot_predict_store_family(1,3)
 
 # %%
 
